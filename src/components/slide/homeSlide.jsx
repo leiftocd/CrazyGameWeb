@@ -185,7 +185,7 @@ function HomeSlide() {
                     }
                     .homeSlide .swiper-slide {
                         flex-shrink: 0;
-                        width: calc(100% / ${isLargeScreen ? 0.95 : 0.9});
+                        width: calc(100% / ${isLargeScreen ? 1 : 1});
                         pointer-events: none;
                         display: flex;
                     }
@@ -206,7 +206,7 @@ function HomeSlide() {
             {isTablet ? (
                 <div className="static-layout">
                     {slides.map((slide, slideIndex) => (
-                        <div key={slideIndex} className="slide-content static">
+                        <div key={slideIndex} className="slide-content static max-sm:flex max-sm:gap-1 max-sm:flex-col">
                             <div className="big-games">
                                 {slide.bigContent.map((big) => (
                                     <Link
@@ -231,7 +231,7 @@ function HomeSlide() {
                                     </Link>
                                 ))}
                             </div>
-                            <div className="small-games">
+                            <div className="small-games max-sm:!gap-1">
                                 {slide.smallBoxes.map((box) => (
                                     <Link
                                         key={box.id}
@@ -262,7 +262,7 @@ function HomeSlide() {
                 <Swiper
                     modules={[Navigation]}
                     spaceBetween={0}
-                    slidesPerView={isLargeScreen ? 0.95 : 0.9}
+                    slidesPerView={1}
                     centeredSlides={false}
                     slidesOffsetAfter={0}
                     watchOverflow={true}

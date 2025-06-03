@@ -2,23 +2,20 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { gameApi } from '../../api/gamesApi';
+import { gameApi } from '../../api/gamesApi'; // Adjust path as needed
 import { Link } from 'react-router-dom';
-import './slide.css';
+import './slide.css'; // Reuse the same CSS file as GameSlide
 
-function GameSlide({ category = '', itemClass = '' }) {
-    const swiperRef = useRef(null);
+function FeaturedSlide({ itemClass = '' }) {
     const [hidePrev, setHidePrev] = useState(true);
     const [hideNext, setHideNext] = useState(false);
     const [itemsPerSlide, setItemsPerSlide] = useState(7);
     const [isMobile, setIsMobile] = useState(false);
 
-    // Filter games by category or use all games if no category is provided
-    const finalData = category
-        ? gameApi.filter((game) => game.categories && game.categories.includes(category))
-        : gameApi;
+    // Filter games to include only those with thumbnails
+    const finalData = gameApi.filter((game) => game.thumbnail && game.thumbnail.trim() !== '');
 
     // Update itemsPerSlide based on window width
     useEffect(() => {
@@ -50,10 +47,15 @@ function GameSlide({ category = '', itemClass = '' }) {
         return `calc((100vw - ${padding}px - ${totalGap}px) / ${itemsPerSlide})`;
     };
 
-    // Calculate item height based on width to maintain aspect ratio
+    // Calculate item height based on width to maintain aspect ratio (e.g., 16:9)
     const calculateItemHeight = () => {
         const aspectRatio = 9 / 16;
         return `calc(${calculateItemWidth()} * ${aspectRatio})`;
+    };
+
+    const handleSlideChange = (swiper) => {
+        setHidePrev(swiper.isBeginning);
+        setHideNext(swiper.isEnd);
     };
 
     // Create chunks for slides based on itemsPerSlide
@@ -72,12 +74,17 @@ function GameSlide({ category = '', itemClass = '' }) {
     }
 
     if (!finalData || finalData.length === 0) {
-        console.warn(`No games found for category: ${category}`);
+        console.warn('No games with thumbnails found');
         return null;
     }
 
     return (
-        <div className="mb-6 w-full relative px-[4px] max-md:px-[auto]">
+        <div className="mb-6 w-full relative px-[4px]  max-md:px-[auto]">
+            <div className="min-h-[32px] mb-2">
+                <span className="text-[#fff] font-bold text-[19.2px] p-[0_16px_3px_8px] w-fit max-sm:text-[14px] max-lg:text-[16px]">
+                    Featured Games
+                </span>
+            </div>
             <div className="relative overflow-hidden mySlide">
                 <style>{`
                     .game-item {
@@ -88,7 +95,7 @@ function GameSlide({ category = '', itemClass = '' }) {
                     }
                     
                     /* Mobile navigation buttons */
-                    .mobile-nav-btn-${category} {
+                    .mobile-nav-btn {
                         position: absolute;
                         top: 50%;
                         transform: translateY(-50%);
@@ -107,20 +114,20 @@ function GameSlide({ category = '', itemClass = '' }) {
                         transition: all 0.3s ease;
                     }
                     
-                    .mobile-nav-btn-${category}:hover {
+                    .mobile-nav-btn:hover {
                         background: rgba(0, 0, 0, 0.9);
                     }
                     
-                    .mobile-nav-btn-${category}:disabled {
+                    .mobile-nav-btn:disabled {
                         opacity: 0.3;
                         cursor: not-allowed;
                     }
                     
-                    .mobile-prev-btn-${category} {
+                    .mobile-prev-btn {
                         left: 10px;
                     }
                     
-                    .mobile-next-btn-${category} {
+                    .mobile-next-btn {
                         right: 10px;
                     }
                     
@@ -134,20 +141,17 @@ function GameSlide({ category = '', itemClass = '' }) {
                     
                     /* Hide mobile navigation on desktop */
                     @media (min-width: 769px) {
-                        .mobile-nav-btn-${category} {
+                        .mobile-nav-btn {
                             display: none !important;
                         }
                     }
                 `}</style>
-
                 <Swiper
                     modules={[Navigation]}
                     spaceBetween={8}
                     slidesPerView={1}
                     slidesPerGroup={1}
                     centeredSlides={false}
-                    grabCursor={true}
-                    speed={300}
                     breakpoints={{
                         320: { slidesPerView: 1, spaceBetween: 8 },
                         640: { slidesPerView: 1, spaceBetween: 8 },
@@ -159,26 +163,22 @@ function GameSlide({ category = '', itemClass = '' }) {
                         nextEl: '.game-slide-next',
                         disabledClass: 'swiper-button-disabled',
                     }}
+                    // Sửa lại touchRatio và allowTouchMove để cho phép vuốt trên mobile
                     touchRatio={1}
                     allowTouchMove={true}
                     simulateTouch={true}
-                    onSlideChange={(swiper) => {
+                    onSlideChange={handleSlideChange}
+                    onInit={(swiper) => {
                         setHidePrev(swiper.isBeginning);
                         setHideNext(swiper.isEnd);
-                        console.log(
-                            `Slide changed for category ${category}: isBeginning=${swiper.isBeginning}, isEnd=${swiper.isEnd}`,
-                        );
+
+                        // Store swiper instance for mobile buttons
+                        window.currentFeaturedSwiper = swiper;
                     }}
-                    onSwiper={(swiper) => {
-                        swiperRef.current = swiper;
-                        setHidePrev(swiper.isBeginning);
-                        setHideNext(swiper.isEnd);
-                        console.log(`Swiper initialized for category ${category}`);
-                    }}
-                    className={`mySwiper-${category}`}
+                    className="mySwiper"
                 >
                     {chunkedData.map((chunk, index) => (
-                        <SwiperSlide key={`slide-${category}-${index}`} className="slide-res">
+                        <SwiperSlide key={`slide-${index}`} className="slide-res">
                             <div className="flex flex-row gap-[8px] w-full">
                                 {chunk.map((item, itemIndex) => (
                                     <Link
@@ -196,41 +196,31 @@ function GameSlide({ category = '', itemClass = '' }) {
                                             alt={item.title || 'Game image'}
                                             className="w-full h-full object-cover"
                                         />
-                                        <h3 className="game-item-title">{item.title || 'Untitled'}</h3>
+                                        <h3 className="game-item-title text-start">{item.title || 'Untitled'}</h3>
                                     </Link>
                                 ))}
                             </div>
                         </SwiperSlide>
                     ))}
 
+                    {/* Desktop navigation buttons */}
                     <div className={`game-slide-prev ${hidePrev ? 'hidden' : ''}`} />
                     <div className={`game-slide-next ${hideNext ? 'hidden' : ''}`} />
 
+                    {/* Mobile navigation buttons */}
                     {isMobile && (
                         <>
                             <button
-                                className={`mobile-nav-btn-${category} mobile-prev-btn-${category} ${hidePrev ? 'opacity-30' : ''}`}
-                                onClick={() => {
-                                    console.log(
-                                        `Prev button clicked for category ${category}`,
-                                        swiperRef.current?.isBeginning,
-                                    );
-                                    swiperRef.current?.slidePrev();
-                                }}
+                                className={`mobile-nav-btn mobile-prev-btn ${hidePrev ? 'opacity-30' : ''}`}
+                                onClick={() => window.currentFeaturedSwiper?.slidePrev()}
                                 disabled={hidePrev}
                                 aria-label="Previous slide"
                             >
                                 ‹
                             </button>
                             <button
-                                className={`mobile-nav-btn-${category} mobile-next-btn-${category} ${hideNext ? 'opacity-30' : ''}`}
-                                onClick={() => {
-                                    console.log(
-                                        `Next button clicked for category ${category}`,
-                                        swiperRef.current?.isEnd,
-                                    );
-                                    swiperRef.current?.slideNext();
-                                }}
+                                className={`mobile-nav-btn mobile-next-btn ${hideNext ? 'opacity-30' : ''}`}
+                                onClick={() => window.currentFeaturedSwiper?.slideNext()}
                                 disabled={hideNext}
                                 aria-label="Next slide"
                             >
@@ -244,9 +234,8 @@ function GameSlide({ category = '', itemClass = '' }) {
     );
 }
 
-GameSlide.propTypes = {
-    category: PropTypes.string,
+FeaturedSlide.propTypes = {
     itemClass: PropTypes.string,
 };
 
-export default GameSlide;
+export default FeaturedSlide;

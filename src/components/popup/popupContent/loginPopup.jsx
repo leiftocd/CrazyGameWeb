@@ -28,7 +28,7 @@ function LoginPopup({ closePopup }) {
                     </svg>
                 </button>
                 <div className="p-4 text-[#fff]">
-                    <div className="flex flex-col items-center justify-center my-[8px] font-bold text-[24px] text-[#fff]">
+                    <div className="flex flex-col items-center justify-center my-[8px] font-bold text-[24px] text-[#fff] max-sm:text-[16px] max-lg:text-[20px]">
                         Log in or sign up
                     </div>
                     <BoxContentPopup />

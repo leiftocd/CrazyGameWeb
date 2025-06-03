@@ -1,4 +1,3 @@
-// src/App.jsx
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { ToastContainer } from 'react-toastify';
@@ -16,6 +15,8 @@ function App() {
     return (
         <GoogleOAuthProvider clientId="714648690123-ds96n7pr2jchljki7etjfphsd6s7ak8s.apps.googleusercontent.com">
             <AuthContext.Provider value={auth}>
+                {' '}
+                {/* Add GameProvider */}
                 <BrowserRouter>
                     <ScrollToTop />
                     <ToastContainer />

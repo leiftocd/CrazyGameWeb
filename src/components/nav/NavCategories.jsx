@@ -15,7 +15,6 @@ function NavCategories() {
             const targetPath = isHomeCategory ? '/' : `/${category.slug}`;
             const isActive = isHomeCategory ? isHomePath : pathname === targetPath;
 
-            // Nếu active, không dùng <Link> nữa mà thay bằng <div> tĩnh
             const Wrapper = isActive ? 'div' : 'a';
             const commonProps = {
                 className: 'h-[34px] flex items-center relative pointer-events-auto group/category',

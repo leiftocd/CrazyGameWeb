@@ -1,6 +1,6 @@
 function Favorite({ onClick }) {
     return (
-        <div className="flex rounded-full p-1 bg-[rgba(255,255,255,0.1)] items-center justify-center h-[40px] w-[40px] cursor-pointer max-sm:h-[35px] max-sm:w-[35px]">
+        <div className="flex rounded-full p-1 bg-[rgba(255,255,255,0.1)] items-center justify-center h-[40px] w-[40px] cursor-pointer max-sm:h-[35px] max-sm:w-[35px] max-sm:bg-[unset]">
             <button className="flex items-center justify-center w-full h-full group cursor-pointer" onClick={onClick}>
                 <svg
                     viewBox="0 0 24 24"

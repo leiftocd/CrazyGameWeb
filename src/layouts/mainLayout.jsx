@@ -5,6 +5,7 @@ import HomeSlide from '../components/slide/homeSlide';
 import GameSlide from '../components/slide/gameSlide';
 import OriginalSlide from '../components/slide/originalSlide';
 import DefaultLayout from './defaultLayout';
+import FeaturedSlide from '../components/slide/featureSlide';
 import { categoriesData } from '../api/categoriesApi';
 import { Link } from 'react-router-dom';
 
@@ -29,12 +30,12 @@ function MainLayout() {
 
     return (
         <DefaultLayout>
-            <main className="flex flex-col mx-auto w-full mt-[60px] pl-[8px] relative max-sm:pl-[0]">
+            <main className="flex flex-col mx-auto w-full mt-[60px] pl-[8px] relative max-md:pl-[0]">
                 {recentGames.length === 0 ? (
                     <div
                         className="w-full h-[84px] flex items-center justify-center gap-[24px] p-[12px_16px_0_16px] relative
                         max-md:grid-cols-3 max-md:grid max-md:h-auto max-sm:p-[8px_8px_0_8px]
-                        max-sm:gap-[8px] max-lg:gap-[16px]"
+                        max-sm:hidden max-lg:gap-[16px]"
                     >
                         <div className="w-[200px] flex gap-[8px]">
                             <svg
@@ -189,6 +190,9 @@ function MainLayout() {
                 )}
                 <div className="flex">
                     <HomeSlide />
+                </div>
+                <div className="flex">
+                    <FeaturedSlide />
                 </div>
                 <div className="flex flex-col">
                     <div className="min-h-[32px]">

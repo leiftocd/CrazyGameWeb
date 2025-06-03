@@ -46,6 +46,26 @@ function GameLayout({ slug }) {
     }, [slug]);
 
     useEffect(() => {
+        if (!user || !selectedGame) return;
+
+        const interval = setInterval(() => {
+            const savedFavorites = Cookies.get('favoriteGames');
+            const savedLikes = Cookies.get('likedGames');
+            const newFavorites = savedFavorites ? JSON.parse(savedFavorites) : [];
+            const newLikes = savedLikes ? JSON.parse(savedLikes) : [];
+
+            if (JSON.stringify(newFavorites) !== JSON.stringify(favorites)) {
+                setFavorites(newFavorites);
+            }
+            if (JSON.stringify(newLikes) !== JSON.stringify(likes)) {
+                setLikes(newLikes);
+            }
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [user, selectedGame, favorites, likes]);
+
+    useEffect(() => {
         if (!selectedGame || !user) return;
 
         const recentCookie = Cookies.get('recentGames');
@@ -121,28 +141,12 @@ function GameLayout({ slug }) {
     };
 
     const handleAddLike = () => {
-        if (!user || !selectedGame) return;
-
-        const likedGames = Cookies.get('likedGames');
-        let updatedLikes = [];
-
-        const gameData = {
-            id: selectedGame.id,
-            slug: selectedGame.slug,
-            title: selectedGame.title,
-            thumbnail: selectedGame.thumbnail,
-        };
-
-        if (likedGames) {
-            const parsed = JSON.parse(likedGames);
-            const exists = parsed.find((item) => item.id === gameData.id);
-            updatedLikes = exists ? parsed.filter((item) => item.id !== gameData.id) : [...parsed, gameData];
-        } else {
-            updatedLikes = [gameData];
-        }
+        if (!selectedGame || !user) return;
+        const exists = likes.find((item) => item.id === selectedGame.id);
+        const updatedLikes = exists ? likes.filter((item) => item.id !== selectedGame.id) : [...likes, selectedGame];
 
         setLikes(updatedLikes);
-        Cookies.set('favoriteGames', JSON.stringify(updatedLikes), { expires: 365 });
+        Cookies.set('likedGames', JSON.stringify(updatedLikes), { expires: 365 });
     };
 
     const handleDislike = () => {
@@ -177,13 +181,14 @@ function GameLayout({ slug }) {
     const handleShowMore = () => {
         setVisibleCount((prev) => prev + 10);
     };
+
     return (
         <DefaultLayout>
             <main className="flex w-full pt-[60px] gap-[16px] bg-[#0C0D14] h-[100vh]">
                 <div className="w-full p-[16px_0_0_16px] flex h-full flex-col items-center max-lg:p-2">
                     <div
                         className="bg-[rgb(33,34,51)] flex flex-col w-full max-w-[1252px] h-full !min-h-[704px] overflow-hidden 
-                        max-xl:max-w-[1052px] max-md:!min-h-[504px] max-sm:!min-h-[404px]"
+                        max-xl:max-w-[1052px] max-md:!min-h-[504px] max-sm:!min-h-[404px] max-md:bg-[unset]"
                         style={{
                             height: 'auto',
                             maxHeight: 'calc(100vh - var(--header-height) - 45px - 64px)',
@@ -206,8 +211,9 @@ function GameLayout({ slug }) {
                                 </div>
                             )}
                         </div>
-                        <div className="px-[16px] h-[45px] flex items-center justify-between w-full">
-                            <div className="flex gap-[8px] h-full items-center">
+                        <div className="px-[16px] h-[45px] flex items-center justify-between w-full max-md:flex-col max-md:h-auto max-md:pb-4">
+                            {/* Game Title */}
+                            <div className="flex gap-[8px] h-full items-center max-md:w-full max-md:justify-center max-md:pt-4">
                                 <svg
                                     width="36"
                                     height="36"
@@ -233,7 +239,7 @@ function GameLayout({ slug }) {
                                         <path
                                             fillRule="evenodd"
                                             clipRule="evenodd"
-                                            d="M25.9261 62.3626C18.976 61.7696 13.5263 59.7776 9.34705 56.3311C3.14925 51.1998 0 42.9987 0 31.9271C0 20.9156 3.13918 12.7341 9.33731 7.59338C14.4257 3.37247 21.3741 1.31256 30.5711 1.31256C39.7684 1.31256 46.7064 3.36273 51.8052 7.59338C58.0033 12.7341 61.1422 20.9254 61.1422 31.9271C61.1422 36.0107 60.7138 39.7038 59.862 42.9958C59.4452 45.0421 58.8574 47.0566 58.0753 48.9979C55.9358 54.3687 52.3367 59.1897 47.7585 62.7702C45.4491 64.5305 42.8997 65.9806 40.2305 67.0908C37.5515 68.201 34.7621 69.0009 31.923 69.4311C29.0839 69.8811 26.2146 70.0413 23.3654 69.9913L21.2359 69.871C20.8761 69.8512 20.5263 69.8214 20.1762 69.7814L19.1169 69.6612C18.1261 69.5775 17.1502 69.4159 16.1752 69.2544C15.753 69.1844 15.3309 69.1145 14.9079 69.051C14.628 69.011 14.438 68.741 14.488 68.4609C14.5078 68.3112 14.6078 68.1809 14.7179 68.101L15.0979 67.9008C16.1893 67.2272 17.2258 66.7044 18.2317 66.1969C18.6446 65.9887 19.0523 65.783 19.4566 65.5706L23.4054 63.6201C23.9635 63.3298 24.5136 63.0594 25.0522 62.7947C25.3471 62.6498 25.6386 62.5065 25.9261 62.3626ZM16.3854 16.1245C19.4144 13.6042 24.0628 12.3838 30.5711 12.3838C37.0794 12.3838 41.7277 13.6139 44.7572 16.1245C48.3361 19.0952 50.0856 24.2658 50.0856 31.9271C50.0856 48.1495 42.2876 51.4701 30.5711 51.4701C18.8545 51.4701 11.0566 48.1495 11.0566 31.9271C11.0566 24.2758 12.7964 19.0952 16.3854 16.1245Z"
+                                            d="M25.9261 62.3626C18.976 61.7696 13.5263 59.7776 9.34705 56.3311C3.14925 51.1998 0 42.9987 0 31.9271C0 20.9156 3.13918 12.7341 9.33731 7.59338C14.4257 3.37247 21.3741 1.31256 30.5711 1.31256C39.7684 1.31256 46.7064 3.36273 51.8052 7.59338C58.0033 12.7341 61.1422 20.9254 61.1422 31.9271C61.1422 36.0107 60.7138 39.7038 59.862 42.9958C59.4452 45.0421 58.8574 47.0566 58.0753 48.9979C55.9358 54.3687 52.3367 59.1897 47.7585 62.7702C45.4491 64.5305 42.8997 65.9806 40.2305 67.0908C37.5515 68.201 34.7621 69.0009 31.923 69.4311C29.0839 69.8811 26.2146 70.0413 23.3654 69.9913L21.2359 69.871C20.8761 69.8512 20.5263 69.8214 20.1762 69.7814L19.1169 69.6612C18.1261 69.5775 17.1502 69.4159 16.1752 69.2544C15.753 69.1844 15.3309 69.1145 14.9079 69.051C14.628 69.011 14.438 68.741 14.488 68.4609C14.5078 68.3112 14.6078 68.1809 14.7179 68.101L14.7179 68.101L15.0979 67.9008C16.1893 67.2272 17.2258 66.7044 18.2317 66.1969C18.6446 65.9887 19.0523 65.783 19.4566 65.5706L23.4054 63.6201C23.9635 63.3298 24.5136 63.0594 25.0522 62.7947C25.3471 62.6498 25.6386 62.5065 25.9261 62.3626ZM16.3854 16.1245C19.4144 13.6042 24.0628 12.3838 30.5711 12.3838C37.0794 12.3838 41.7277 13.6139 44.7572 16.1245C48.3361 19.0952 50.0856 24.2658 50.0856 31.9271C50.0856 48.1495 42.2876 51.4701 30.5711 51.4701C18.8545 51.4701 11.0566 48.1495 11.0566 31.9271C11.0566 24.2758 12.7964 19.0952 16.3854 16.1245Z"
                                         ></path>
                                         <path
                                             fillRule="evenodd"
@@ -248,14 +254,20 @@ function GameLayout({ slug }) {
                                     {selectedGame ? selectedGame.title : 'CrazyGame'}
                                 </div>
                             </div>
-                            <div className="flex h-full items-center">
-                                <div className="h-full mr-4">
+
+                            {/* Mobile Layout: Play Button and Action Buttons */}
+                            <div className="max-md:flex max-md:flex-col max-md:w-full max-md:items-center max-md:mt-4 hidden">
+                                <Button onClick={handleFullScreen} className="max-md:mb-4 max-md:!w-[150px]">
+                                    Play now
+                                </Button>
+
+                                <div className="flex justify-center w-full gap-8">
                                     <button
-                                        className="bg-none border-none outline-0 flex gap-2 items-center justify-center h-full cursor-pointer group"
+                                        className="bg-none border-none outline-0 flex gap-2 items-center justify-center cursor-pointer group max-md:flex-col"
                                         onClick={handleAddLike}
                                     >
                                         <svg
-                                            className={`w-[24px] h-[24px] max-sm:w-[20px] max-sm-h-[20px] ${isLiked ? 'fill-[rgb(134,104,255)]' : 'fill-[#fff]'} group-hover:fill-[rgb(134,104,255)]`}
+                                            className={`w-[24px] h-[24px] max-sm:w-[20px] max-sm:h-[20px] ${isLiked ? 'fill-[rgb(74,240,167)]' : 'fill-[#fff]'} ${isLiked ? 'group-hover:fill-[rgb(74,240,167)]' : 'group-hover:fill-[rgb(134,104,255)]'}`}
                                             focusable="false"
                                             aria-hidden="true"
                                             viewBox="0 0 24 24"
@@ -269,19 +281,17 @@ function GameLayout({ slug }) {
                                             ></path>
                                         </svg>
                                         <span
-                                            className={`font-[700] text-[12px] ${isLiked ? 'text-[rgb(134,104,255)]' : 'text-[#fff]'} group-hover:text-[rgb(134,104,255)]`}
+                                            className={`font-[700] text-[12px] ${isLiked ? 'text-[rgb(74,240,167)]' : 'text-[#fff]'} ${isLiked ? 'group-hover:text-[rgb(74,240,167)]' : 'group-hover:text-[rgb(134,104,255)]'}`}
                                         >
                                             1.6M
                                         </span>
                                     </button>
-                                </div>
-                                <div className="h-full mr-4">
                                     <button
+                                        className="bg-none border-none outline-0 flex gap-2 items-center justify-center cursor-pointer group max-md:flex-col"
                                         onClick={handleDislike}
-                                        className="bg-none border-none outline-0 flex gap-2 items-center justify-center h-full cursor-pointer group"
                                     >
                                         <svg
-                                            className={`w-[24px] h-[24px] max-sm:w-[20px] max-sm-h-[20px] ${isDisliked ? 'fill-[rgb(134,104,255)]' : 'fill-[#fff]'} group-hover:fill-[rgb(134,104,255)]`}
+                                            className={`w-[24px] h-[24px] max-sm:w-[20px] max-sm:h-[20px] ${isDisliked ? 'fill-[rgb(231,13,92)]' : 'fill-[#fff]'} ${isDisliked ? 'group-hover:fill-[rgb(231,13,92)]' : 'group-hover:fill-[rgb(134,104,255)]'}`}
                                             focusable="false"
                                             aria-hidden="true"
                                             viewBox="0 0 24 24"
@@ -295,7 +305,100 @@ function GameLayout({ slug }) {
                                             ></path>
                                         </svg>
                                         <span
-                                            className={`font-[700] text-[12px] ${isDisliked ? 'text-[rgb(134,104,255)]' : 'text-[#fff]'} group-hover:text-[rgb(134,104,255)]`}
+                                            className={`font-[700] text-[12px] ${isDisliked ? 'text-[rgb(231,13,92)]' : 'text-[#fff]'} ${isDisliked ? 'group-hover:text-[rgb(231,13,92)]' : 'group-hover:text-[rgb(134,104,255)]'}`}
+                                        >
+                                            1.6M
+                                        </span>
+                                    </button>
+                                    <button
+                                        className="bg-none border-none outline-0 flex gap-2 items-center justify-center group cursor-pointer max-md:flex-col"
+                                        onClick={handleAddFavorite}
+                                    >
+                                        {isFavorited ? (
+                                            <svg
+                                                className="w-[24px] h-[24px] max-sm:w-[20px] max-sm:h-[20px] fill-[rgb(226,38,181)]"
+                                                viewBox="0 0 24 24"
+                                                aria-hidden="true"
+                                                focusable="false"
+                                            >
+                                                <path
+                                                    fillRule="evenodd"
+                                                    clipRule="evenodd"
+                                                    d="M8.04445 3C6.66359 3 5.53468 3.29654 4.63432 3.82463C3.73186 4.35395 3.11419 5.08371 2.70912 5.86217C1.91829 7.38195 1.92575 9.0998 2.11858 10.0865C2.62052 12.655 4.41942 15.3472 6.3037 17.3581C7.25773 18.3762 8.27078 19.26 9.21577 19.8976C10.1115 20.502 11.1112 21 12 21C12.8888 21 13.8885 20.502 14.7842 19.8976C15.7292 19.26 16.7423 18.3762 17.6963 17.3581C19.5806 15.3472 21.3795 12.655 21.8814 10.0865C22.0743 9.0998 22.0817 7.38195 21.2909 5.86217C20.8858 5.08371 20.2682 4.35395 19.3657 3.82463C18.4653 3.29654 17.3364 3 15.9556 3C14.8581 3 13.9104 3.49559 13.1784 4.11305C12.7259 4.49473 12.3303 4.94327 12 5.40732C11.6697 4.94327 11.2741 4.49473 10.8216 4.11305C10.0896 3.49559 9.14193 3 8.04445 3Z"
+                                                />
+                                            </svg>
+                                        ) : (
+                                            <svg
+                                                className="w-[24px] h-[24px] max-sm:w-[20px] max-sm:h-[20px] fill-[#fff] group-hover:fill-[rgb(134,104,255)]"
+                                                focusable="false"
+                                                aria-hidden="true"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    fillRule="evenodd"
+                                                    clipRule="evenodd"
+                                                    d="M4.47368 6.78578C3.94666 7.79745 3.9392 9.02672 4.07146 9.70273C4.46989 11.7393 5.98381 14.0997 7.75719 15.9902C8.63197 16.9227 9.53387 17.7018 10.3315 18.2394C11.1783 18.8102 11.749 19 12 19C12.251 19 12.8217 18.8102 13.6685 18.2394C14.4661 17.7018 15.368 16.9227 16.2428 15.9902C18.0162 14.0997 19.5301 11.7393 19.9286 9.70273C20.0608 9.02672 20.0534 7.79745 19.5263 6.78578C19.2725 6.29849 18.9017 5.86627 18.3619 5.55002C17.82 5.23252 17.0529 5 15.96 5C14.7111 5 13.7204 5.56856 13.2125 6.32446C12.8891 6.80569 12.3638 6.94309 12 6.94309C11.6362 6.94309 11.1109 6.80569 10.7876 6.32446C10.2796 5.56856 9.28887 5 8.04003 5C6.94711 5 6.18001 5.23252 5.63809 5.55002C5.09831 5.86627 4.72752 6.29849 4.47368 6.78578ZM4.62707 3.82438C5.52816 3.29645 6.65797 3 8.04003 3C9.61785 3 11.0464 3.61724 12 4.64452C12.9536 3.61724 14.3822 3 15.96 3C17.342 3 18.4719 3.29645 19.3729 3.82438C20.2762 4.35357 20.8945 5.08322 21.3001 5.86176C22.0919 7.38172 22.0844 9.09982 21.8913 10.0867C21.3888 12.6555 19.5878 15.3476 17.7015 17.3585C16.7464 18.3766 15.7323 19.2603 14.7863 19.8979C13.8895 20.5023 12.8891 21 12 21C11.1109 21 10.1105 20.5023 9.21371 19.8979C8.26775 19.2603 7.25361 18.3766 6.29853 17.3585C4.41221 15.3476 2.61121 12.6555 2.10867 10.0867C1.91558 9.09982 1.90812 7.38172 2.69993 5.86176C3.1055 5.08322 3.72383 4.35357 4.62707 3.82438Z"
+                                                ></path>
+                                            </svg>
+                                        )}
+                                        <span
+                                            className={`font-[700] text-[12px] ${isFavorited ? 'text-[rgb(226,38,181)]' : 'text-[#fff]'} ${isFavorited ? 'group-hover:text-[rgb(226,38,181)]' : 'group-hover:text-[rgb(134,104,255)]'}`}
+                                        >
+                                            Favorite
+                                        </span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Desktop Layout */}
+                            <div className="flex h-full items-center max-md:hidden">
+                                <div className="h-full mr-4">
+                                    <button
+                                        className="bg-none border-none outline-0 flex gap-2 items-center justify-center h-full cursor-pointer group"
+                                        onClick={handleAddLike}
+                                    >
+                                        <svg
+                                            className={`w-[24px] h-[24px] max-sm:w-[20px] max-sm:h-[20px] ${isLiked ? 'fill-[rgb(74,240,167)]' : 'fill-[#fff]'} ${isLiked ? 'group-hover:fill-[rgb(74,240,167)]' : 'group-hover:fill-[rgb(134,104,255)]'}`}
+                                            focusable="false"
+                                            aria-hidden="true"
+                                            viewBox="0 0 24 24"
+                                            width="24"
+                                            height="24"
+                                        >
+                                            <path
+                                                fillRule="evenodd"
+                                                clipRule="evenodd"
+                                                d="M10.1051 3.90453C10.1051 2.84042 10.9755 2 12.0215 2H12.1183C13.7773 2 15.1446 3.33088 15.1446 5V9H18.9711C21.2014 9 22.6959 11.3321 21.6755 13.3463L18.1295 20.3463C17.6137 21.3646 16.5645 22 15.4251 22H11.3546C11.1082 22 10.8627 21.9702 10.6236 21.9112L6.93101 21H5.02628C3.36726 21 2 19.6691 2 18V12C2 10.3309 3.36726 9 5.02628 9H7.19669L9.66081 5.35177C9.95107 4.92203 10.1051 4.41848 10.1051 3.90453ZM6.05257 11H5.02628C4.44713 11 4 11.46 4 12V18C4 18.54 4.44713 19 5.02628 19H6.05257V11ZM8.05257 19.2168V11.3061L11.3182 6.47121C11.8129 5.73871 12.0857 4.88122 12.1041 4H12.1183C12.6974 4 13.1446 4.45998 13.1446 5V9H12.1183C11.566 9 11.1183 9.44772 11.1183 10C11.1183 10.5523 11.566 11 12.1183 11H18.9711C19.7534 11 20.2183 11.7971 19.8914 12.4425L16.3454 19.4425C16.1747 19.7794 15.8207 20 15.4251 20H11.3546C11.2696 20 11.185 19.9897 11.1027 19.9694L8.05257 19.2168Z"
+                                            ></path>
+                                        </svg>
+                                        <span
+                                            className={`font-[700] text-[12px] ${isLiked ? 'text-[rgb(74,240,167)]' : 'text-[#fff]'} ${isLiked ? 'group-hover:text-[rgb(74,240,167)]' : 'group-hover:text-[rgb(134,104,255)]'}`}
+                                        >
+                                            1.6M
+                                        </span>
+                                    </button>
+                                </div>
+                                <div className="h-full mr-4">
+                                    <button
+                                        className="bg-none border-none outline-0 flex gap-2 items-center justify-center h-full cursor-pointer group"
+                                        onClick={handleDislike}
+                                    >
+                                        <svg
+                                            className={`w-[24px] h-[24px] max-sm:w-[20px] max-sm:h-[20px] ${isDisliked ? 'fill-[rgb(231,13,92)]' : 'fill-[#fff]'} ${isDisliked ? 'group-hover:fill-[rgb(231,13,92)]' : 'group-hover:fill-[rgb(134,104,255)]'}`}
+                                            focusable="false"
+                                            aria-hidden="true"
+                                            viewBox="0 0 24 24"
+                                            width="24"
+                                            height="24"
+                                        >
+                                            <path
+                                                fillRule="evenodd"
+                                                clipRule="evenodd"
+                                                d="M8.57484 4C8.17921 4 7.82522 4.22056 7.65455 4.55747L4.10855 11.5575C3.78161 12.2029 4.24657 13 5.02885 13H11.8817C12.434 13 12.8817 13.4477 12.8817 14C12.8817 14.5523 12.434 15 11.8817 15H10.8454V19C10.8454 19.8495 11.5426 22 11.8817 22H11.8958C11.9142 19.1418 12.187 15.2613 15.6818 14.6418L15.9474 12.6939V4.78524L15.8972 4.04059C15.815 14.0109 12.7415 4 12.6454 4H8.57484ZM17.9474 5V13H18.9737C19.5527 13 20 12.54 20 12V6C20 5.46 19.5527 5 18.9737 5H17.9474ZM16.8413 15L15.3395 17.8C15.9489 17.9 13.9 19.6 14 20.0954 13.8948 21.1596 13.0245 22 11.8717 22H11.8817C10.2226 22 8.84538 20.6691 8.84538 19V15H5.02885C2.7986 15 1.30415 12.6679 2.32448 10.6537L5.8704 3.65368C6.38618 2.63545 7.43545 2 8.57481 2H12.6454C12.8917 2 13.1372 2.02982 13.3763 2.08881L17.0689 3H18.9737C20.6327 3 22 4.33088 22 6V12C22 13.6691 20.6327 15 18.9737 15H16.8413Z"
+                                            ></path>
+                                        </svg>
+                                        <span
+                                            className={`font-[700] text-[12px] ${isDisliked ? 'text-[rgb(231,13,92)]' : 'text-[#fff]'} ${isDisliked ? 'group-hover:text-[rgb(231,13,92)]' : 'group-hover:text-[rgb(134,104,255)]'}`}
                                         >
                                             1.6M
                                         </span>
@@ -306,18 +409,33 @@ function GameLayout({ slug }) {
                                         className="bg-none border-none outline-0 flex gap-2 items-center justify-center h-full group cursor-pointer"
                                         onClick={handleAddFavorite}
                                     >
-                                        <svg
-                                            className={`w-[24px] h-[24px] max-sm:w-[20px] max-sm-h-[20px] ${isFavorited ? 'fill-[rgb(134,104,255)]' : 'fill-[#fff]'} group-hover:fill-[rgb(134,104,255)]`}
-                                            focusable="false"
-                                            aria-hidden="true"
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <path
-                                                fillRule="evenodd"
-                                                clipRule="evenodd"
-                                                d="M4.47368 6.78578C3.94666 7.79745 3.9392 9.02672 4.07146 9.70273C4.46989 11.7393 5.98381 14.0997 7.75719 15.9902C8.63197 16.9227 9.53387 17.7018 10.3315 18.2394C11.1783 18.8102 11.749 19 12 19C12.251 19 12.8217 18.8102 13.6685 18.2394C14.4661 17.7018 15.368 16.9227 16.2428 15.9902C18.0162 14.0997 19.5301 11.7393 19.9286 9.70273C20.0608 9.02672 20.0534 7.79745 19.5263 6.78578C19.2725 6.29849 18.9017 5.86627 18.3619 5.55002C17.82 5.23252 17.0529 5 15.96 5C14.7111 5 13.7204 5.56856 13.2125 6.32446C12.8891 6.80569 12.3638 6.94309 12 6.94309C11.6362 6.94309 11.1109 6.80569 10.7876 6.32446C10.2796 5.56856 9.28887 5 8.04003 5C6.94711 5 6.18001 5.23252 5.63809 5.55002C5.09831 5.86627 4.72752 6.29849 4.47368 6.78578ZM4.62707 3.82438C5.52816 3.29645 6.65797 3 8.04003 3C9.61785 3 11.0464 3.61724 12 4.64452C12.9536 3.61724 14.3822 3 15.96 3C17.342 3 18.4719 3.29645 19.3729 3.82438C20.2762 4.35357 20.8945 5.08322 21.3001 5.86176C22.0919 7.38172 22.0844 9.09982 21.8913 10.0867C21.3888 12.6555 19.5878 15.3476 17.7015 17.3585C16.7464 18.3766 15.7323 19.2603 14.7863 19.8979C13.8895 20.5023 12.8891 21 12 21C11.1109 21 10.1105 20.5023 9.21371 19.8979C8.26775 19.2603 7.25361 18.3766 6.29853 17.3585C4.41221 15.3476 2.61121 12.6555 2.10867 10.0867C1.91558 9.09982 1.90812 7.38172 2.69993 5.86176C3.1055 5.08322 3.72383 4.35357 4.62707 3.82438Z"
-                                            ></path>
-                                        </svg>
+                                        {isFavorited ? (
+                                            <svg
+                                                className="w-[24px] h-[24px] max-sm:w-[20px] max-sm:h-[20px] fill-[rgb(226,38,181)]"
+                                                viewBox="0 0 24 24"
+                                                aria-hidden="true"
+                                                focusable="false"
+                                            >
+                                                <path
+                                                    fillRule="evenodd"
+                                                    clipRule="evenodd"
+                                                    d="M8.04445 3C6.66359 3 5.53468 3.29654 4.63432 3.82463C3.73186 4.35395 3.11419 5.08371 2.70912 5.86217C1.91829 7.38195 1.92575 9.0998 2.11858 10.0865C2.62052 12.655 4.41942 15.3472 6.3037 17.3581C7.25773 18.3762 8.27078 19.26 9.21577 19.8976C10.1115 20.502 11.1112 21 12 21C12.8888 21 13.8885 20.502 14.7842 19.8976C15.7292 19.26 16.7423 18.3762 17.6963 17.3581C19.5806 15.3472 21.3795 12.655 21.8814 10.0865C22.0743 9.0998 22.0817 7.38195 21.2909 5.86217C20.8858 5.08371 20.2682 4.35395 19.3657 3.82463C18.4653 3.29654 17.3364 3 15.9556 3C14.8581 3 13.9104 3.49559 13.1784 4.11305C12.7259 4.49473 12.3303 4.94327 12 5.40732C11.6697 4.94327 11.2741 4.49473 10.8216 4.11305C10.0896 3.49559 9.14193 3 8.04445 3Z"
+                                                />
+                                            </svg>
+                                        ) : (
+                                            <svg
+                                                className="w-[24px] h-[24px] max-sm:w-[20px] max-sm:h-[20px] fill-[#fff] group-hover:fill-[rgb(134,104,255)]"
+                                                focusable="false"
+                                                aria-hidden="true"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    fillRule="evenodd"
+                                                    clipRule="evenodd"
+                                                    d="M4.47368 6.78578C3.94666 7.79745 3.9392 9.02672 4.07146 9.70273C4.46989 11.7393 5.98381 14.0997 7.75719 15.9902C8.63197 16.9227 9.53387 17.7018 10.3315 18.2394C11.1783 18.8102 11.749 19 12 19C12.251 19 12.8217 18.8102 13.6685 18.2394C14.4661 17.7018 15.368 16.9227 16.2428 15.9902C18.0162 14.0997 19.5301 11.7393 19.9286 9.70273C20.0608 9.02672 20.0534 7.79745 19.5263 6.78578C19.2725 6.29849 18.9017 5.86627 18.3619 5.55002C17.82 5.23252 17.0529 5 15.96 5C14.7111 5 13.7204 5.56856 13.2125 6.32446C12.8891 6.80569 12.3638 6.94309 12 6.94309C11.6362 6.94309 11.1109 6.80569 10.7876 6.32446C10.2796 5.56856 9.28887 5 8.04003 5C6.94711 5 6.18001 5.23252 5.63809 5.55002C5.09831 5.86627 4.72752 6.29849 4.47368 6.78578ZM4.62707 3.82438C5.52816 3.29645 6.65797 3 8.04003 3C9.61785 3 11.0464 3.61724 12 4.64452C12.9536 3.61724 14.3822 3 15.96 3C17.342 3 18.4719 3.29645 19.3729 3.82438C20.2762 4.35357 20.8945 5.08322 21.3001 5.86176C22.0919 7.38172 22.0844 9.09982 21.8913 10.0867C21.3888 12.6555 19.5878 15.3476 17.7015 17.3585C16.7464 18.3766 15.7323 19.2603 14.7863 19.8979C13.8895 20.5023 12.8891 21 12 21C11.1109 21 10.1105 20.5023 9.21371 19.8979C8.26775 19.2603 7.25361 18.3766 6.29853 17.3585C4.41221 15.3476 2.61121 12.6555 2.10867 10.0867C1.91558 9.09982 1.90812 7.38172 2.69993 5.86176C3.1055 5.08322 3.72383 4.35357 4.62707 3.82438Z"
+                                                ></path>
+                                            </svg>
+                                        )}
                                     </button>
                                 </div>
                                 <div className="h-[20px] mx-1 border-r border-[rgb(63,65,92)]"></div>
@@ -327,7 +445,7 @@ function GameLayout({ slug }) {
                                         onClick={handleFullScreen}
                                     >
                                         <svg
-                                            className="w-[24px] h-[24px] max-sm:w-[20px] max-sm-h-[20px] fill-[#fff] group-hover:fill-[rgb(134,104,255)]"
+                                            className="w-[24px] h-[24px] max-sm:w-[20px] max-sm:h-[20px] fill-[#fff] group-hover:fill-[rgb(134,104,255)]"
                                             focusable="false"
                                             aria-hidden="true"
                                             viewBox="0 0 24 24"
@@ -489,7 +607,7 @@ function GameLayout({ slug }) {
                                             alt={game.title}
                                             className="w-full h-full object-cover"
                                             onError={(e) => {
-                                                e.target.src = '/image/game/thumbnail/placeholder.jpg'; // Fallback image
+                                                e.target.src = '/image/game/thumbnail/placeholder.jpg';
                                             }}
                                         />
                                     ) : (

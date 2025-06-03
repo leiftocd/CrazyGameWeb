@@ -36,11 +36,10 @@ const EmailForm = () => {
             Cookies.set('google_user', JSON.stringify(fakeUser), { expires: 7, secure: true, sameSite: 'lax' });
             Cookies.set('login_method', 'email', { expires: 7, secure: true, sameSite: 'lax' });
 
-            login(fakeUser); // ✅ Login thành công
+            login(fakeUser);
             return;
         }
 
-        // ❌ Email chưa được đăng ký
         Cookies.set('email_pending', email, { expires: 7, secure: true, sameSite: 'lax' });
 
         toast.warning('This email has not been registered yet.', {

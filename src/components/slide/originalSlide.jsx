@@ -12,6 +12,7 @@ function OriginalSlide({ title = '', data = [], itemClass = '', baseUnit = '8px'
     const [hidePrev, setHidePrev] = useState(true);
     const [hideNext, setHideNext] = useState(false);
     const [itemsPerSlide, setItemsPerSlide] = useState(getItemsPerSlide());
+    const [isMobile, setIsMobile] = useState(false);
 
     const filteredData = gameApi.filter((item) => item.originalThumbnail);
     const finalData = data.length > 0 ? data : filteredData;
@@ -27,7 +28,12 @@ function OriginalSlide({ title = '', data = [], itemClass = '', baseUnit = '8px'
     useEffect(() => {
         const handleResize = () => {
             setItemsPerSlide(getItemsPerSlide());
+            setIsMobile(window.innerWidth <= 768);
         };
+
+        // Set initial mobile state
+        setIsMobile(window.innerWidth <= 768);
+
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
@@ -76,7 +82,7 @@ function OriginalSlide({ title = '', data = [], itemClass = '', baseUnit = '8px'
     if (!finalData || finalData.length === 0) return null;
 
     return (
-        <div className="mb-6 w-full px-2 relative">
+        <div className="mb-6 w-full px-1 relative">
             <h2 className="text-xl font-bold mb-2 text-white">{title}</h2>
             <div className="relative mySlide">
                 <style>{`
@@ -135,6 +141,58 @@ function OriginalSlide({ title = '', data = [], itemClass = '', baseUnit = '8px'
                     .hidden {
                         display: none;
                     }
+                    
+                    /* Mobile navigation buttons */
+                    .mobile-nav-btn {
+                        position: absolute;
+                        top: 50%;
+                        transform: translateY(-50%);
+                        z-index: 10;
+                        background: rgba(0, 0, 0, 0.7);
+                        border: none;
+                        border-radius: 50%;
+                        width: 40px;
+                        height: 40px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: white;
+                        font-size: 18px;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                    }
+                    
+                    .mobile-nav-btn:hover {
+                        background: rgba(0, 0, 0, 0.9);
+                    }
+                    
+                    .mobile-nav-btn:disabled {
+                        opacity: 0.3;
+                        cursor: not-allowed;
+                    }
+                    
+                    .mobile-prev-btn {
+                        left: 10px;
+                    }
+                    
+                    .mobile-next-btn {
+                        right: 10px;
+                    }
+                    
+                    /* Hide desktop navigation on mobile */
+                    @media (max-width: 768px) {
+                        .game-slide-prev,
+                        .game-slide-next {
+                            display: none !important;
+                        }
+                    }
+                    
+                    /* Hide mobile navigation on desktop */
+                    @media (min-width: 769px) {
+                        .mobile-nav-btn {
+                            display: none !important;
+                        }
+                    }
                 `}</style>
 
                 <Swiper
@@ -152,12 +210,17 @@ function OriginalSlide({ title = '', data = [], itemClass = '', baseUnit = '8px'
                         nextEl: '.game-slide-next',
                         disabledClass: 'swiper-button-disabled',
                     }}
-                    touchRatio={0}
-                    allowTouchMove={window.innerWidth <= 768}
+                    // Sửa lại touchRatio và allowTouchMove để cho phép vuốt trên mobile
+                    touchRatio={1}
+                    allowTouchMove={true}
+                    simulateTouch={true}
                     onSlideChange={handleSlideChange}
                     onInit={(swiper) => {
                         setHidePrev(swiper.isBeginning);
                         setHideNext(swiper.isEnd);
+
+                        // Store swiper instance for mobile buttons
+                        window.currentOriginalSwiper = swiper;
                     }}
                     className="swiper"
                 >
@@ -179,8 +242,32 @@ function OriginalSlide({ title = '', data = [], itemClass = '', baseUnit = '8px'
                             ))}
                         </SwiperSlide>
                     ))}
+
+                    {/* Desktop navigation buttons */}
                     <div className={`game-slide-prev ${hidePrev ? 'hidden' : ''}`} />
                     <div className={`game-slide-next ${hideNext ? 'hidden' : ''}`} />
+
+                    {/* Mobile navigation buttons */}
+                    {isMobile && (
+                        <>
+                            <button
+                                className={`mobile-nav-btn mobile-prev-btn ${hidePrev ? 'opacity-30' : ''}`}
+                                onClick={() => window.currentOriginalSwiper?.slidePrev()}
+                                disabled={hidePrev}
+                                aria-label="Previous slide"
+                            >
+                                ‹
+                            </button>
+                            <button
+                                className={`mobile-nav-btn mobile-next-btn ${hideNext ? 'opacity-30' : ''}`}
+                                onClick={() => window.currentOriginalSwiper?.slideNext()}
+                                disabled={hideNext}
+                                aria-label="Next slide"
+                            >
+                                ›
+                            </button>
+                        </>
+                    )}
                 </Swiper>
             </div>
         </div>

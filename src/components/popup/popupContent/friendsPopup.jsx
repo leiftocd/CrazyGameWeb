@@ -31,8 +31,10 @@ function FriendsPopup({ closePopup, showLoginPopup }) {
                     <div className="flex justify-center">
                         <img src={FriendsImg} alt="" className="max-w-[150px] h-[150px]" />
                     </div>
-                    <div className="font-bold text-[24px] text-[#fff] text-center block">Bring your friends!</div>
-                    <div className="font-[600] text-[20px] text-[rgb(170,173,190)] block text-center my-[8px_24px]">
+                    <div className="font-bold text-[24px] text-[#fff] text-center block max-sm:text-[18px] max-lg:text-[20px]  ">
+                        Bring your friends!
+                    </div>
+                    <div className="font-[600] text-[20px] text-[rgb(170,173,190)] block text-center my-[8px_24px] max-sm:text-[16px] max-lg:text-[18px] max-sm:px-[16px]">
                         Create a CrazyGames account to start inviting your friends.
                     </div>
                     <div className="flex justify-center items-center w-[90%]">
