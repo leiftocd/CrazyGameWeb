@@ -1,0 +1,36 @@
+nav {
+    z-index: 100 !important; /* Ensure nav stays above other elements */
+    scrollbar-width: inherit; /* For Firefox */
+    scrollbar-color: inherit; /* For Firefox */
+}
+
+/* Webkit browsers (Chrome, Safari, Edge) */
+nav::-webkit-scrollbar {
+    width: inherit;
+    height: inherit;
+}
+
+nav::-webkit-scrollbar-track {
+    background: inherit;
+}
+
+nav::-webkit-scrollbar-thumb {
+    background: inherit;
+    border-radius: inherit;
+}
+
+nav::-webkit-scrollbar-thumb:hover {
+    background: inherit;
+}
+.active {
+    color: #a48eff;
+    transform: translateX(0) !important;
+}
+.active.group-hover\/category {
+    transform: translateX(0) !important;
+    color: #a48eff !important;
+}
+.active-icon {
+    border-left: 6px solid #a48eff; /* Purple border */
+    width: calc(60px - 6px);
+}

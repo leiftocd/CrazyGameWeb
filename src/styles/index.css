@@ -1,0 +1,174 @@
+/* src/index.css (or your SCSS file) */
+@import 'tailwindcss';
+/* Tailwind CSS directives */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
+@tailwind utilities;
+@layer base {
+}
+/* Define custom components in the components layer if needed */
+@layer components {
+}
+:root {
+    --sidebar-width: 200px;
+    --sidebar-collapsed-width: 60px;
+    --sidebar-item-height: 34px;
+    --sidebar-icon-size: 22px;
+    --header-height: 60px;
+    --header-search-width: 262px;
+    --header-logo-height: 35px;
+    --header-mobile-height: 56px;
+    --header-tablet-height: 60px;
+    --header-mobile-logo-height: 30px;
+    --drawer-width: 400px;
+    --game-thumb-width: 178px;
+    --game-thumb-height: 100px;
+    --game-thumb-aspect-ratio: 100 / 178;
+    --game-thumb-mobile-width: 168px;
+    --originals-portrait-width: 271px;
+    --originals-portrait-mobile-width: 160px;
+    --originals-square-width: 160px;
+    --originals-square-mobile-width: 160px;
+    --originals-landscape-width: 178px;
+    --originals-landscape-mobile-width: 168px;
+    --font-size-body: 14px;
+    --font-size-button: 16px;
+    --font-size-body-small: 11.2px;
+    --font-size-body-xsmall: 0.7rem;
+    --font-size-h1: 24px;
+    --font-size-h1-small: 1.5rem;
+    --font-size-h2: 1.2rem;
+    --font-size-h2-small: 0.875rem;
+    --font-size-h3: 1rem;
+    --font-size-h5: 20px;
+    --base-unit: 8px;
+}
+
+/* SCSS Custom Variables */
+$primary-color: #3490dc;
+$secondary-color: #ffed4a;
+$danger-color: #e3342f;
+/* Reset CSS */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+html {
+    box-sizing: border-box;
+    font-family: 'Nunito', Arial, 'Helvetica Neue', Helvetica, sans-serif;
+}
+*,
+*::before,
+*::after {
+    box-sizing: inherit;
+}
+body {
+    background: #0c0d14 !important;
+    min-height: 100vh;
+}
+/* Base scrollbar styling */
+::-webkit-scrollbar {
+    width: 6px; /* Width of the vertical scrollbar */
+    height: 6px; /* Height of the horizontal scrollbar */
+    padding: 2px; /* Padding around the scrollbar */
+}
+
+/* The track (background) of the scrollbar */
+::-webkit-scrollbar-track {
+    background: #0c0d14; /* Dark background as requested */
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2); /* Subtle inner shadow */
+}
+
+/* The handle (thumb) of the scrollbar */
+::-webkit-scrollbar-thumb {
+    background: #aaadbe; /* Light grayish-blue thumb as requested */
+    border-radius: 10px; /* Rounded corners */
+    transition: background 0.3s; /* Smooth transition for hover effect */
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #9598ab; /* Slightly darker on hover */
+    cursor: pointer; /* Change cursor to pointer on hover */
+}
+
+/* Handle on active (being clicked) */
+::-webkit-scrollbar-thumb:active {
+    background: #878a9e; /* Even darker when clicked */
+}
+
+/* The buttons on the scrollbar (arrows) */
+::-webkit-scrollbar-button {
+    display: block; /* Show scrollbar buttons */
+    background-color: #0c0d14;
+    height: 16px;
+    width: 16px;
+    border-radius: 2px;
+
+    /* Creating triangle shapes using borders */
+    position: relative;
+}
+
+/* Up button - triangle styling */
+::-webkit-scrollbar-button:vertical:decrement {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='%23AAADBE'><polygon points='50,30 75,65 25,65'/></svg>");
+    background-size: 8px;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* Down button - triangle styling */
+::-webkit-scrollbar-button:vertical:increment {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='%23AAADBE'><polygon points='50,65 75,30 25,30'/></svg>");
+    background-size: 8px;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* Left button - triangle styling */
+::-webkit-scrollbar-button:horizontal:decrement {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='%23AAADBE'><polygon points='30,50 65,25 65,75'/></svg>");
+    background-size: 8px;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* Right button - triangle styling */
+::-webkit-scrollbar-button:horizontal:increment {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='%23AAADBE'><polygon points='65,50 30,25 30,75'/></svg>");
+    background-size: 8px;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* Hover state for buttons */
+::-webkit-scrollbar-button:hover {
+    background-color: #12141f;
+}
+
+/* Active state for buttons */
+::-webkit-scrollbar-button:active {
+    background-color: #16182a;
+}
+
+/* Corner where horizontal and vertical scrollbars meet */
+::-webkit-scrollbar-corner {
+    background: #0c0d14; /* Match track color */
+}
+
+/* For Firefox (uses a different system) */
+* {
+    scrollbar-width: thin; /* "auto", "thin", or "none" */
+    scrollbar-color: #aaadbe #0c0d14; /* thumb and track colors */
+}
+
+.swiper {
+    padding: 0 40px 0 0 !important;
+}
+.swiper.:nth-last-child {
+    padding-right: 0 !important;
+}
+body iframe {
+    overflow: hidden !important;
+}
