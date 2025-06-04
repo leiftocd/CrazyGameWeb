@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import Cookies from 'js-cookie';
-import EmailForm from '../../form/emailForm';
 import BoxContentPopup from '../popupContent/boxContentPopup/boxContentPopup';
 import { AuthContext } from '../../../context/AuthContext';
 
@@ -159,10 +158,6 @@ function MyGamePopup({ closePopup }) {
                         </h2>
                     </div>
                     <BoxContentPopup />
-                    <div className="divider">
-                        <span>OR</span>
-                    </div>
-                    <EmailForm />
                 </div>
             ),
         },
@@ -184,10 +179,6 @@ function MyGamePopup({ closePopup }) {
                         </h2>
                     </div>
                     <BoxContentPopup />
-                    <div className="divider">
-                        <span>OR</span>
-                    </div>
-                    <EmailForm />
                 </div>
             ),
         },
@@ -226,7 +217,7 @@ function MyGamePopup({ closePopup }) {
     };
 
     return (
-        <div className="w-[400px] bg-[rgb(26,27,40)] h-[calc(100vh-76px)] absolute z-20 top-[8px] right-[8px] rounded-[10px] overflow-hidden">
+        <div className="w-[400px] bg-[rgb(26,27,40)] h-[calc(100vh-76px)] absolute z-20 top-[8px] right-[8px] rounded-[10px] overflow-hidden popup-res-mb">
             <div className="w-full h-full">
                 <div className="h-[60px] text-[16px] font-[600] text-[#fff] flex items-center justify-center">
                     My Games

@@ -7,7 +7,7 @@ function FriendsPopup({ closePopup, showLoginPopup }) {
     const { user } = useContext(AuthContext);
 
     return (
-        <div className="w-[400px] bg-[#121b3a] h-[calc(100vh-76px)] absolute z-20 top-[8px] right-[8px] rounded-[10px] overflow-hidden">
+        <div className="w-[400px] bg-[#121b3a] h-[calc(100vh-76px)] absolute z-20 top-[8px] right-[8px] rounded-[10px] overflow-hidden popup-res-mb">
             <div className="w-full h-full">
                 <div className="radial-popup"></div>
                 <div className="h-[60px] text-[16px] font-[600] text-[#fff] flex items-center justify-center">

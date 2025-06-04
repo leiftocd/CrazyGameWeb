@@ -137,3 +137,9 @@
     object-fit: cover;
     display: block;
 }
+
+@media (max-width: 450px) {
+    .popup-res-mb {
+        width: 96% !important ;
+    }
+}

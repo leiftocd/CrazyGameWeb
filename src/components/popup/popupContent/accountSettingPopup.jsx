@@ -1,6 +1,6 @@
 function AccountSettingPopup({ closePopup, backPopup, showDeletePopup }) {
     return (
-        <div className="w-[400px] bg-[rgb(26,27,40)] h-[calc(100vh-76px)] absolute z-20 top-[8px] right-[8px] rounded-[10px] overflow-hidden pt-[56px]">
+        <div className="w-[400px] bg-[rgb(26,27,40)] h-[calc(100vh-76px)] absolute z-20 top-[8px] right-[8px] rounded-[10px] overflow-hidden pt-[56px] popup-res-mb">
             <div className="w-full h-full flex flex-col gap-4">
                 <button className="absolute left-[24px] top-[16px] cursor-pointer group" onClick={backPopup}>
                     <svg

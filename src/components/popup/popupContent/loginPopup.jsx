@@ -1,5 +1,4 @@
 import { useContext, useEffect } from 'react';
-import EmailForm from '../../form/emailForm';
 import BoxContentPopup from '../popupContent/boxContentPopup/boxContentPopup';
 import { AuthContext } from '../../../context/AuthContext';
 
@@ -13,7 +12,7 @@ function LoginPopup({ closePopup }) {
     }, [user, closePopup]);
 
     return (
-        <div className="w-[400px] bg-[rgb(26,27,40)] h-[calc(100vh-76px)] absolute z-20 top-[8px] right-[8px] rounded-[10px] overflow-hidden pt-[56px]">
+        <div className="w-[400px] bg-[rgb(26,27,40)] h-[calc(100vh-76px)] absolute z-20 top-[8px] right-[8px] rounded-[10px] overflow-hidden pt-[56px] popup-res-mb">
             <div className="w-full h-full">
                 <button className="absolute right-[24px] top-[16px] cursor-pointer group" onClick={closePopup}>
                     <svg
@@ -32,10 +31,6 @@ function LoginPopup({ closePopup }) {
                         Log in or sign up
                     </div>
                     <BoxContentPopup />
-                    <div className="divider">
-                        <span>OR</span>
-                    </div>
-                    <EmailForm />
                 </div>
             </div>
         </div>
