@@ -12,7 +12,6 @@ function MenuMobilePopup({ closePopup }) {
 
     // Normalize to match Home slug
     const isHomePath = pathname === '/' || pathname === '/home';
-
     // Handle search input change
     const handleChange = (e) => {
         const value = e.target.value;
