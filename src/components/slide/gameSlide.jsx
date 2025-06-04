@@ -165,15 +165,11 @@ function GameSlide({ category = '', itemClass = '' }) {
                     onSlideChange={(swiper) => {
                         setHidePrev(swiper.isBeginning);
                         setHideNext(swiper.isEnd);
-                        console.log(
-                            `Slide changed for category ${category}: isBeginning=${swiper.isBeginning}, isEnd=${swiper.isEnd}`,
-                        );
                     }}
                     onSwiper={(swiper) => {
                         swiperRef.current = swiper;
                         setHidePrev(swiper.isBeginning);
                         setHideNext(swiper.isEnd);
-                        console.log(`Swiper initialized for category ${category}`);
                     }}
                     className={`mySwiper-${category}`}
                 >
@@ -211,10 +207,6 @@ function GameSlide({ category = '', itemClass = '' }) {
                             <button
                                 className={`mobile-nav-btn-${category} mobile-prev-btn-${category} ${hidePrev ? 'opacity-30' : ''}`}
                                 onClick={() => {
-                                    console.log(
-                                        `Prev button clicked for category ${category}`,
-                                        swiperRef.current?.isBeginning,
-                                    );
                                     swiperRef.current?.slidePrev();
                                 }}
                                 disabled={hidePrev}
@@ -225,10 +217,6 @@ function GameSlide({ category = '', itemClass = '' }) {
                             <button
                                 className={`mobile-nav-btn-${category} mobile-next-btn-${category} ${hideNext ? 'opacity-30' : ''}`}
                                 onClick={() => {
-                                    console.log(
-                                        `Next button clicked for category ${category}`,
-                                        swiperRef.current?.isEnd,
-                                    );
                                     swiperRef.current?.slideNext();
                                 }}
                                 disabled={hideNext}

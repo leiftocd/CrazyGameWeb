@@ -9,6 +9,7 @@ function BoxContentPopup() {
 
     const handleGoogleLogin = useGoogleLogin({
         onSuccess: async (tokenResponse) => {
+            console.log('Token response:', tokenResponse);
             try {
                 const res = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
                     headers: {
@@ -25,18 +26,19 @@ function BoxContentPopup() {
                 console.error('Failed to fetch user info:', err);
             }
         },
-        onError: () => {
-            console.error('Google Login Failed');
+        onError: (error) => {
+            console.error('Google Login Failed:', error);
         },
         scope: 'openid profile email',
-        flow: 'implicit',
+        ux_mode: 'popup', // Force popup mode
+        // redirect_uri: window.location.origin, // redirect URI
     });
 
     return (
         <div className="flex flex-col gap-3 py-4">
             <Button
                 onClick={handleGoogleLogin}
-                className="!bg-[#fff] !text-[#000] max-w-[97%] hover:!bg-[#e4e4e4] !font-[500]"
+                className="!bg-[#fff] !text-[#000] max-w-[100%] hover:!bg-[#e4e4e4] !font-[500]"
             >
                 <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className="w-[20px] h-[20px]">
                     <g>
