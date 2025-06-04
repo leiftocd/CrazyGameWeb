@@ -13,6 +13,7 @@ function BoxContentPopup() {
             try {
                 const res = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
                     headers: {
+                        // Fix: Added backticks for template literal
                         Authorization: `Bearer ${tokenResponse.access_token}`,
                     },
                 });
@@ -30,15 +31,42 @@ function BoxContentPopup() {
             console.error('Google Login Failed:', error);
         },
         scope: 'openid profile email',
-        ux_mode: 'redirect',
-        redirect_uri: window.location.origin + '/auth/callback',
+        ux_mode: 'popup',
     });
+
+    // Add explicit touch handling for iOS
+    const handleButtonClick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        handleGoogleLogin();
+    };
+
+    const handleTouchStart = (e) => {
+        // Prevent iOS from interfering with touch events
+        e.currentTarget.style.transform = 'scale(0.98)';
+    };
+
+    const handleTouchEnd = (e) => {
+        e.currentTarget.style.transform = 'scale(1)';
+    };
 
     return (
         <div className="flex flex-col gap-3 py-4">
             <Button
-                onClick={handleGoogleLogin}
-                className="!bg-[#fff] !text-[#000] max-w-[100%] hover:!bg-[#e4e4e4] !font-[500] !z-[9999]"
+                onClick={handleButtonClick}
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
+                // Fix: Removed hover styles that can cause issues on iOS
+                className="!bg-[#fff] !text-[#000] max-w-[100%] active:!bg-[#e4e4e4] !font-[500] cursor-pointer"
+                style={{
+                    // Ensure button is touchable on iOS
+                    WebkitTapHighlightColor: 'transparent',
+                    touchAction: 'manipulation',
+                    userSelect: 'none',
+                    // Minimum touch target size for iOS
+                    minHeight: '44px',
+                    minWidth: '44px',
+                }}
             >
                 <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className="w-[20px] h-[20px]">
                     <g>
