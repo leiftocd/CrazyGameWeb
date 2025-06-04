@@ -38,7 +38,7 @@ function BoxContentPopup() {
         <div className="flex flex-col gap-3 py-4">
             <Button
                 onClick={handleGoogleLogin}
-                className="!bg-[#fff] !text-[#000] max-w-[100%] hover:!bg-[#e4e4e4] !font-[500]"
+                className="!bg-[#fff] !text-[#000] max-w-[100%] hover:!bg-[#e4e4e4] !font-[500] !z-[9999]"
             >
                 <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className="w-[20px] h-[20px]">
                     <g>
