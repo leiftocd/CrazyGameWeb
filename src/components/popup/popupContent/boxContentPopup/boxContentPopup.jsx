@@ -7,8 +7,19 @@ import Button from '../../../../components/button/button';
 function BoxContentPopup() {
     const { login } = useContext(AuthContext);
 
-    // Detect iOS devices
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    // Detect iOS device
+    const isIOS = () => {
+        return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    };
+
+    // Check if running in WebView
+    const isWebView = () => {
+        const userAgent = navigator.userAgent;
+        return (
+            userAgent.includes('wv') || // Android WebView
+            (userAgent.includes('Version/') && userAgent.includes('Mobile/')) // iOS WebView
+        );
+    };
 
     const handleGoogleLogin = useGoogleLogin({
         onSuccess: async (tokenResponse) => {
@@ -31,20 +42,48 @@ function BoxContentPopup() {
         },
         onError: (error) => {
             console.error('Google Login Failed:', error);
+
+            // Handle iOS WebView error specifically
+            if (isIOS() && isWebView()) {
+                alert('Vui lòng mở ứng dụng trong trình duyệt Safari để đăng nhập Google');
+            }
         },
         scope: 'openid profile email',
-        // Use redirect mode for iOS to avoid 403 error
-        ux_mode: isIOS ? 'redirect' : 'popup',
-        // Set redirect_uri only for iOS redirect mode
-        ...(isIOS && {
-            redirect_uri: window.location.origin,
-        }),
+        // Force redirect flow for iOS to avoid WebView issues
+        ux_mode: isIOS() && isWebView() ? 'redirect' : 'popup',
+        // Add redirect URI for iOS
+        redirect_uri: window.location.origin,
     });
+
+    // Alternative method: Open in external browser for iOS WebView
+    const handleIOSLogin = () => {
+        // eslint-disable-next-line no-undef
+        const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID; // Your Google Client ID
+        const redirectUri = encodeURIComponent(window.location.origin);
+        const scope = encodeURIComponent('openid profile email');
+
+        const googleAuthUrl =
+            `https://accounts.google.com/oauth/authorize?` +
+            `client_id=${clientId}&` +
+            `redirect_uri=${redirectUri}&` +
+            `scope=${scope}&` +
+            `response_type=code&` +
+            `access_type=offline`;
+
+        // Try to open in external browser
+        window.open(googleAuthUrl, '_system', 'location=yes');
+    };
 
     const handleButtonClick = (e) => {
         e.preventDefault();
         e.stopPropagation();
-        handleGoogleLogin();
+
+        // If iOS WebView, use alternative method
+        if (isIOS() && isWebView()) {
+            handleIOSLogin();
+        } else {
+            handleGoogleLogin();
+        }
     };
 
     const handleTouchStart = (e) => {
@@ -57,13 +96,6 @@ function BoxContentPopup() {
 
     return (
         <div className="flex flex-col gap-3 py-4">
-            {/* Show info for iOS users */}
-            {isIOS && (
-                <div className="text-xs text-blue-600 mb-2 p-2 bg-blue-50 rounded">
-                    Trên iOS, đăng nhập sẽ chuyển trang để đảm bảo bảo mật
-                </div>
-            )}
-
             <Button
                 onClick={handleButtonClick}
                 onTouchStart={handleTouchStart}
@@ -100,6 +132,11 @@ function BoxContentPopup() {
                 </svg>
                 Đăng nhập bằng Google
             </Button>
+
+            {/* Show warning for iOS WebView users */}
+            {isIOS() && isWebView() && (
+                <div className="text-sm text-orange-600 text-center">Nếu gặp lỗi, vui lòng mở trong Safari</div>
+            )}
         </div>
     );
 }

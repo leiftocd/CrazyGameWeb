@@ -13,7 +13,11 @@ function App() {
     const auth = useAuth();
 
     return (
-        <GoogleOAuthProvider clientId="714648690123-ds96n7pr2jchljki7etjfphsd6s7ak8s.apps.googleusercontent.com">
+        <GoogleOAuthProvider
+            clientId="714648690123-ds96n7pr2jchljki7etjfphsd6s7ak8s.apps.googleusercontent.com"
+            cookiePolicy={'single_host_origin'}
+            hosted_domain={window.location.hostname}
+        >
             <AuthContext.Provider value={auth}>
                 {' '}
                 {/* Add GameProvider */}
