@@ -7,13 +7,15 @@ import Button from '../../../../components/button/button';
 function BoxContentPopup() {
     const { login } = useContext(AuthContext);
 
+    // Detect iOS devices
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
     const handleGoogleLogin = useGoogleLogin({
         onSuccess: async (tokenResponse) => {
             console.log('Token response:', tokenResponse);
             try {
                 const res = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
                     headers: {
-                        // Fix: Added backticks for template literal
                         Authorization: `Bearer ${tokenResponse.access_token}`,
                     },
                 });
@@ -31,10 +33,14 @@ function BoxContentPopup() {
             console.error('Google Login Failed:', error);
         },
         scope: 'openid profile email',
-        ux_mode: 'popup',
+        // Use redirect mode for iOS to avoid 403 error
+        ux_mode: isIOS ? 'redirect' : 'popup',
+        // Set redirect_uri only for iOS redirect mode
+        ...(isIOS && {
+            redirect_uri: window.location.origin,
+        }),
     });
 
-    // Add explicit touch handling for iOS
     const handleButtonClick = (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -42,7 +48,6 @@ function BoxContentPopup() {
     };
 
     const handleTouchStart = (e) => {
-        // Prevent iOS from interfering with touch events
         e.currentTarget.style.transform = 'scale(0.98)';
     };
 
@@ -52,18 +57,22 @@ function BoxContentPopup() {
 
     return (
         <div className="flex flex-col gap-3 py-4">
+            {/* Show info for iOS users */}
+            {isIOS && (
+                <div className="text-xs text-blue-600 mb-2 p-2 bg-blue-50 rounded">
+                    Trên iOS, đăng nhập sẽ chuyển trang để đảm bảo bảo mật
+                </div>
+            )}
+
             <Button
                 onClick={handleButtonClick}
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd}
-                // Fix: Removed hover styles that can cause issues on iOS
                 className="!bg-[#fff] !text-[#000] max-w-[100%] active:!bg-[#e4e4e4] !font-[500] cursor-pointer"
                 style={{
-                    // Ensure button is touchable on iOS
                     WebkitTapHighlightColor: 'transparent',
                     touchAction: 'manipulation',
                     userSelect: 'none',
-                    // Minimum touch target size for iOS
                     minHeight: '44px',
                     minWidth: '44px',
                 }}
