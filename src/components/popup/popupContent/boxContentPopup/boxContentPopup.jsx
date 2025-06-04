@@ -40,7 +40,7 @@ function BoxContentPopup() {
                 onClick={handleGoogleLogin}
                 className="!bg-[#fff] !text-[#000] max-w-[100%] hover:!bg-[#e4e4e4] !font-[500]"
             >
-                <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className="w-[20px] h-[20px]">
+                {/* <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className="w-[20px] h-[20px]">
                     <g>
                         <path
                             fill="#EA4335"
@@ -60,7 +60,7 @@ function BoxContentPopup() {
                         ></path>
                         <path fill="none" d="M0 0h48v48H0z"></path>
                     </g>
-                </svg>
+                </svg> */}
                 Đăng nhập bằng Google
             </Button>
         </div>
