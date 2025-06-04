@@ -30,8 +30,8 @@ function BoxContentPopup() {
             console.error('Google Login Failed:', error);
         },
         scope: 'openid profile email',
-        ux_mode: 'popup', // Force popup mode
-        // redirect_uri: window.location.origin, // redirect URI
+        ux_mode: 'redirect',
+        redirect_uri: window.location.origin + '/auth/callback',
     });
 
     return (
