@@ -7,26 +7,13 @@ import Button from '../../../../components/button/button';
 function BoxContentPopup() {
     const { login } = useContext(AuthContext);
 
-    // Detect iOS device
-    const isIOS = () => {
-        return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    };
-
-    // Check if running in WebView
-    const isWebView = () => {
-        const userAgent = navigator.userAgent;
-        return (
-            userAgent.includes('wv') || // Android WebView
-            (userAgent.includes('Version/') && userAgent.includes('Mobile/')) // iOS WebView
-        );
-    };
-
     const handleGoogleLogin = useGoogleLogin({
         onSuccess: async (tokenResponse) => {
             console.log('Token response:', tokenResponse);
             try {
                 const res = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
                     headers: {
+                        // Fix: Added backticks for template literal
                         Authorization: `Bearer ${tokenResponse.access_token}`,
                     },
                 });
@@ -42,51 +29,20 @@ function BoxContentPopup() {
         },
         onError: (error) => {
             console.error('Google Login Failed:', error);
-
-            // Handle iOS WebView error specifically
-            if (isIOS() && isWebView()) {
-                alert('Vui lòng mở ứng dụng trong trình duyệt Safari để đăng nhập Google');
-            }
         },
         scope: 'openid profile email',
-        // Force redirect flow for iOS to avoid WebView issues
-        ux_mode: isIOS() && isWebView() ? 'redirect' : 'popup',
-        // Add redirect URI for iOS
-        redirect_uri: window.location.origin,
+        ux_mode: 'popup',
     });
 
-    // Alternative method: Open in external browser for iOS WebView
-    const handleIOSLogin = () => {
-        // eslint-disable-next-line no-undef
-        const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID; // Your Google Client ID
-        const redirectUri = encodeURIComponent(window.location.origin);
-        const scope = encodeURIComponent('openid profile email');
-
-        const googleAuthUrl =
-            `https://accounts.google.com/oauth/authorize?` +
-            `client_id=${clientId}&` +
-            `redirect_uri=${redirectUri}&` +
-            `scope=${scope}&` +
-            `response_type=code&` +
-            `access_type=offline`;
-
-        // Try to open in external browser
-        window.open(googleAuthUrl, '_system', 'location=yes');
-    };
-
+    // Add explicit touch handling for iOS
     const handleButtonClick = (e) => {
         e.preventDefault();
         e.stopPropagation();
-
-        // If iOS WebView, use alternative method
-        if (isIOS() && isWebView()) {
-            handleIOSLogin();
-        } else {
-            handleGoogleLogin();
-        }
+        handleGoogleLogin();
     };
 
     const handleTouchStart = (e) => {
+        // Prevent iOS from interfering with touch events
         e.currentTarget.style.transform = 'scale(0.98)';
     };
 
@@ -100,11 +56,14 @@ function BoxContentPopup() {
                 onClick={handleButtonClick}
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd}
+                // Fix: Removed hover styles that can cause issues on iOS
                 className="!bg-[#fff] !text-[#000] max-w-[100%] active:!bg-[#e4e4e4] !font-[500] cursor-pointer"
                 style={{
+                    // Ensure button is touchable on iOS
                     WebkitTapHighlightColor: 'transparent',
                     touchAction: 'manipulation',
                     userSelect: 'none',
+                    // Minimum touch target size for iOS
                     minHeight: '44px',
                     minWidth: '44px',
                 }}
@@ -132,11 +91,6 @@ function BoxContentPopup() {
                 </svg>
                 Đăng nhập bằng Google
             </Button>
-
-            {/* Show warning for iOS WebView users */}
-            {isIOS() && isWebView() && (
-                <div className="text-sm text-orange-600 text-center">Nếu gặp lỗi, vui lòng mở trong Safari</div>
-            )}
         </div>
     );
 }
