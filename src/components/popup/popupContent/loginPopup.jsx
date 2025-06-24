@@ -1,10 +1,8 @@
 import { useContext, useEffect } from 'react';
 import BoxContentPopup from '../popupContent/boxContentPopup/boxContentPopup';
 import { AuthContext } from '../../../context/AuthContext';
-
 function LoginPopup({ closePopup }) {
     const { user } = useContext(AuthContext);
-
     useEffect(() => {
         if (user) {
             closePopup();

@@ -24,6 +24,8 @@ const useAuth = () => {
         setUser(null);
         Cookies.remove('google_user');
         Cookies.remove('google_access_token');
+        Cookies.remove('recentGames'); //clear recent game cookies
+        window.location.reload(); // f5 website after logout
     };
 
     return { user, login, logout };
